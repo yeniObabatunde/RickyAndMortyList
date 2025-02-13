@@ -16,6 +16,7 @@ struct CharacterListView: View {
     }
     
     var body: some View {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
@@ -56,6 +57,12 @@ struct CharacterListView: View {
                 }
             }
             .navigationTitle("Characters")
+            .navigationDestination(for: CharacterModel.self) { character in
+                CharacterDetailsViewRepresentable(character: character)
+                    .ignoresSafeArea(.container, edges: .top)
+                    .navigationBarBackButtonHidden(true)
+            }
+        }
         .onAppear {
             if viewModel.characters.isEmpty {
                 viewModel.loadCharacters()
