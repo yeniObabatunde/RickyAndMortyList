@@ -28,9 +28,9 @@ final class CharacterDetailsView: UIView {
     
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-         imageView.contentMode = .scaleAspectFill
-         imageView.layer.cornerRadius = 30
-         imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.cornerRadius = 30
+        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -152,7 +152,7 @@ final class CharacterDetailsView: UIView {
     @objc private func backButtonTapped() {
         onBackButtonTapped?()
     }
-
+    
     func configure(with character: CharacterModel) {
         nameLabel.text = character.name
         speciesAndGenderLabel.text = "\(character.species ?? "") • \(character.gender?.capitalized ?? "")"
@@ -172,9 +172,5 @@ final class CharacterDetailsView: UIView {
         case .none:
             break;
         }
-        
     }
-    
-    
 }
-
