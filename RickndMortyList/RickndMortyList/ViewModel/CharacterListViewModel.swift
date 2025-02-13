@@ -2,7 +2,7 @@
 //  CharacterListViewModel.swift
 //  RickndMortyList
 //
-//  Created by Sharon Omoyeni Babatunde on 13/02/2025.
+//  Created by Sharon Omoyeni Babatunde on 11/02/2025.
 //
 
 import SwiftUI
@@ -27,12 +27,12 @@ final class CharacterListViewModel: CharacterListViewModelProtocol {
     @Published var error: Error?
     @Published var errorMessage: ErrorMessage?
     private var cancellables = Set<AnyCancellable>()
-    private let serviceDI: ServiceDIContainer
+    private let serviceDI: ServiceDIContainerProtocol
   
     private var currentPage = 1
     var canLoadMorePages = true
     
-    init(serviceDI: ServiceDIContainer) {
+    init(serviceDI: ServiceDIContainerProtocol) {
         self.serviceDI = serviceDI
     }
     
@@ -44,7 +44,27 @@ final class CharacterListViewModel: CharacterListViewModelProtocol {
         isLoading = true
         error = nil
         
-        characters = mockCharacters
+        serviceDI.characterService.fetchCharacters(status: selectedStatus ?? .alive, page: currentPage)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else { return }
+
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    self.isLoading = false
+                    self.error = error
+                    self.errorMessage = ErrorMessage(message: error.localizedDescription)
+                }
+            } receiveValue: { [weak self] newCharacters in
+                guard let self = self else { return }
+                let newResults = newCharacters.results ?? []
+                self.characters.append(contentsOf: newResults)
+                self.currentPage = (self.currentPage == newCharacters.info?.pages) ? 1 : self.currentPage + 1
+                self.canLoadMorePages = !newResults.isEmpty
+            }
+            .store(in: &cancellables)
     }
     
     private func refreshCharacters() {
@@ -112,85 +132,6 @@ final class CharacterListViewModel: CharacterListViewModelProtocol {
            gender: "",
            image: "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
            location: .init(name: "Earth", url: "")
-           ),
-       CharacterModel(
-           id: 1,
-           name: "Zephyr",
-           species: "Elf",
-           status: .alive,
-           gender: "",
-           image: "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-           location: .init(name: "Earth", url: "")
-       ),
-       CharacterModel(
-           id: 2,
-           name: "Aurora",
-           species: "Human",
-           status: .alive,
-           gender: "",
-           image: "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-           location: .init(name: "Earth", url: "")
-           ),
-       CharacterModel(
-           id: 1,
-           name: "Zephyr",
-           species: "Elf",
-           status: .alive,
-           gender: "",
-           image: "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-           location: .init(name: "Earth", url: "")
-       ),
-       CharacterModel(
-           id: 2,
-           name: "Aurora",
-           species: "Human",
-           status: .alive,
-           gender: "",
-           image: "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-           location: .init(name: "Earth", url: "")
-           ),
-       CharacterModel(
-           id: 1,
-           name: "Zephyr",
-           species: "Elf",
-           status: .alive,
-           gender: "",
-           image: "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-           location: .init(name: "Earth", url: "")
-       ),
-       CharacterModel(
-           id: 2,
-           name: "Aurora",
-           species: "Human",
-           status: .alive,
-           gender: "",
-           image: "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-           location: .init(name: "Earth", url: "")
            )
    ]
 
-
-/*
- 
- serviceDI.characterService.fetchCharacters(status: selectedStatus ?? .alive, page: currentPage)
-     .receive(on: DispatchQueue.main)
-     .sink { [weak self] completion in
-         guard let self = self else { return }
-
-         switch completion {
-         case .finished:
-             break
-         case .failure(let error):
-             self.isLoading = false
-             self.error = error
-             self.errorMessage = ErrorMessage(message: error.localizedDescription)
-         }
-     } receiveValue: { [weak self] newCharacters in
-         guard let self = self else { return }
-         let newResults = newCharacters.results ?? []
-         self.characters.append(contentsOf: newResults)
-         self.currentPage += 1
-         self.canLoadMorePages = !newResults.isEmpty
-     }
-     .store(in: &cancellables)
- */
