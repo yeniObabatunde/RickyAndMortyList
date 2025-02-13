@@ -7,19 +7,19 @@
 
 import Foundation
 
-struct CharacterModelWrapper: Decodable {
+struct CharacterModelWrapper: Codable {
     let info: Info?
     let results: [CharacterModel]?
 }
 
 // MARK: - Info
-struct Info: Decodable {
+struct Info: Codable {
     let count, pages: Int?
     let next: String?
     let prev: String?
 }
 
-struct CharacterModel: Identifiable, Equatable, Decodable, Hashable {
+struct CharacterModel: Identifiable, Equatable, Codable, Hashable {
     let id: Int?
     let name: String?
     let species: String?
@@ -31,19 +31,19 @@ struct CharacterModel: Identifiable, Equatable, Decodable, Hashable {
     }
     let location: LocationModel?
     
-    struct LocationModel: Equatable, Decodable, Hashable {
+    struct LocationModel: Equatable, Codable, Hashable {
         let name: String?
         let url: String?
     }
 }
 
-enum CharacterStatus: String, CaseIterable, Decodable, Hashable {
+enum CharacterStatus: String, CaseIterable, Codable, Hashable {
     case alive = "Alive"
     case dead = "Dead"
     case unknown = "unknown"
 }
 
-enum CharacterGender: String, Decodable, Hashable {
+enum CharacterGender: String, Hashable {
     case female = "Female"
     case genderless = "Genderless"
     case male = "Male"
